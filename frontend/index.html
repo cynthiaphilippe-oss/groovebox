@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>GrooveBox</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- HEADER -->
+    <header class="header">
+        <div class="header-content">
+            <img src="assets/LogoGrooveBox.jpg" alt="GrooveBox logo" class="logo">
+
+            <div class="title-block">
+            <h1>GrooveBox</h1>
+            <p class="subtitle">Ton groove, ta collection</p>
+            </div>
+        </div>
+    </header>
+
+  <!-- AUTH -->
+  <section class="login">
+    <h3>Connexion</h3>
+
+    <input id="tokenInput" placeholder="Colle ton token ici">
+    <button onclick="saveToken()">Valider token</button>
+
+    <!-- option future -->
+    <button onclick="loadVinyls()">Charger ma collection</button>
+  </section>
+
+  <!-- AJOUT VINYLE -->
+  <section class="form">
+    <h2>Ajouter un vinyle</h2>
+
+    <input id="title" placeholder="Titre">
+    <input id="artist" placeholder="Artiste">
+    <input id="year" placeholder="Année">
+    <input id="genre" placeholder="Genre">
+
+    <button onclick="addVinyl()">Ajouter</button>
+  </section>
+
+  <!-- RECHERCHE -->
+  <section class="search">
+    <h2>Recherche</h2>
+
+    <input id="search" placeholder="Rechercher un artiste">
+    <button onclick="searchVinyls()">Rechercher</button>
+    <button onclick="loadVinyls()">Reset</button>
+  </section>
+
+  <!-- LISTE VINYLES -->
+  <section id="list"></section>
+
+  <script src="script.js"></script>
+</body>
+</html>

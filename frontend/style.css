@@ -1,0 +1,142 @@
+:root {
+  --space: 12px;
+}
+
+/********************* GLOBAL **********************/
+body {
+  font-family: Arial, sans-serif;
+  background: black;
+  color: #f8eedc;
+}
+
+/********************* HEADER **********************/
+.header {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  width: 80px;
+  height: auto;
+}
+
+.title-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #ed601a;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.8;
+  color: #f8eedc;
+}
+
+/********************* TITRES **********************/
+h1, h2, h3 {
+  color: #ed601a;
+}
+
+/********************* LAYOUT **********************/
+section {
+  max-width: 800px;
+  margin: calc(var(--space) * 2) auto;
+  background: #1a1a1a;
+  border-radius: 12px;
+  padding: 15px;
+}
+
+/********************* INPUTS **********************/
+input {
+  display: block;
+  width: 100%;
+  margin: var(--space) 0;
+  padding: 10px;
+  border-radius: 8px;
+  box-sizing: border-box;
+  border: none;
+}
+
+/********************* BUTTONS **********************/
+button {
+  margin: var(--space) 0;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #ed601a;
+  color: #f8eedc;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+button:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+/********************* FORM **********************/
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+}
+
+/********************* CARDS **********************/
+.card {
+  border-radius: 12px;
+  padding: 15px;
+  margin: 10px;
+  width: 180px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  border-left: 5px solid #ed601a;
+}
+
+/********************* RESPONSIVE **********************/
+@media (max-width: 768px) {
+
+  .logo {
+    width: 70px;
+  }
+
+  .header h1 {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+
+  section {
+    width: 95%;
+    margin: 10px auto;
+    padding: 12px;
+  }
+
+  input,
+  button {
+    font-size: 16px;
+  }
+
+  #list {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card {
+    width: 90%;
+  }
+}
