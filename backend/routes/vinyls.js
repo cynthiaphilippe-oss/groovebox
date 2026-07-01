@@ -10,7 +10,7 @@ router.post("/", auth, vinylsController.createVinyl);
 // READ all user vinyls
 router.get("/", auth, vinylsController.getUserVinyls);
 
-// SEARCH vinyls
+// SEARCH vinylsgit status
 router.get("/search", auth, vinylsController.searchVinyls);
 
 // READ one vinyl
