@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -40,26 +41,54 @@
       <button onclick="sortVinyls('title')">A → Z</button>
       <button onclick="sortVinyls('artist')">Artiste</button>
       <button onclick="sortVinyls('year')">Année</button>
-      <button onclick="loadVinyls()">Reset ordre</button>
+      <button onclick="resetOrder()">Reset ordre</button>
     </div>
 
     <div id="list"></div>
 
   </section>
 
-  <!-- AJOUT VINYLE -->
+  <!-- AJOUT / MODIFICATION VINYLE -->
   <section class="form">
-    <h2>Ajouter un vinyle</h2>
+    <h2 id="formTitle">Ajouter un vinyle</h2>
 
     <div class="form-grid">
       <input id="title" placeholder="Titre">
       <input id="artist" placeholder="Artiste">
-      <input id="year" placeholder="Année">
-      <input id="genre" placeholder="Genre">
+      <input id="year" placeholder="Année" type="number" inputmode="numeric" min="1948" max="2026">
+
+      <select id="genre" onchange="toggleGenreOther()">
+        <option value="">Genre...</option>
+        <option value="Rock">Rock</option>
+        <option value="Pop">Pop</option>
+        <option value="Jazz">Jazz</option>
+        <option value="Blues">Blues</option>
+        <option value="Funk">Funk</option>
+        <option value="Soul">Soul</option>
+        <option value="Electro">Electro</option>
+        <option value="Hip-Hop">Hip-Hop</option>
+        <option value="Rap">Rap</option>
+        <option value="R&B">R&B</option>
+        <option value="Reggae">Reggae</option>
+        <option value="Classique">Classique</option>
+        <option value="Metal">Metal</option>
+        <option value="Folk">Folk</option>
+        <option value="Grunge">Grunge</option>
+        <option value="Progressive Rock">Progressive Rock</option>
+        <option value="Autre">Autre...</option>
+      </select>
+
+      <input id="genreOther" placeholder="Préciser le genre" style="display:none;">
     </div>
 
-    <button onclick="addVinyl()">
+    <input id="coverUrl" placeholder="URL pochette (optionnel — sinon recherche auto)">
+
+    <button id="submitBtn" onclick="addVinyl()">
       <i class="fa-solid fa-plus"></i> Ajouter
+    </button>
+
+    <button id="cancelBtn" onclick="cancelEdit()" style="display:none; background:#333;">
+      Annuler
     </button>
   </section>
 
@@ -67,15 +96,37 @@
   <section class="search">
     <h2>Recherche</h2>
 
-    <input id="search" placeholder="Rechercher un artiste">
+    <input id="search" placeholder="Rechercher un artiste" oninput="searchVinyls()">
 
-    <button onclick="searchVinyls()">
-      <i class="fa-solid fa-magnifying-glass"></i> Rechercher
-    </button>
+    <div class="search-actions">
+      <button onclick="searchVinyls()">
+        <i class="fa-solid fa-magnifying-glass"></i> Rechercher
+      </button>
 
-    <button onclick="loadVinyls()">Reset</button>
+      <button onclick="clearSearchField()" class="btn-secondary">
+        <i class="fa-solid fa-xmark"></i> Voir toute la collection
+      </button>
+    </div>
   </section>
 
+  <!-- MODALE DE CONFIRMATION SUPPRESSION -->
+  <div id="deleteModal" class="modal-overlay">
+    <div class="modal-box">
+      <h2>Supprimer ce vinyle ?</h2>
+      <p id="deleteModalText" class="modal-text"></p>
+
+      <div class="modal-actions">
+        <button id="deleteCancelBtn" onclick="closeDeleteModal()" class="btn-secondary">
+          Annuler
+        </button>
+        <button id="deleteConfirmBtn" onclick="confirmDelete()" class="btn-danger">
+          <i class="fa-solid fa-trash"></i> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
   <script src="script.js"></script>
 </body>
 </html>

@@ -91,7 +91,8 @@ section {
 }
 
 /********************* INPUTS **********************/
-input {
+input,
+select {
   display: block;
   width: 100%;
   margin: var(--space) 0;
@@ -99,6 +100,9 @@ input {
   border-radius: 8px;
   box-sizing: border-box;
   border: none;
+  background: #fff;
+  color: #111;
+  font-family: inherit;
 }
 
 /********************* BUTTONS **********************/
@@ -131,7 +135,8 @@ button:hover {
   gap: 12px;
 }
 
-.form-grid input {
+.form-grid input,
+.form-grid select {
   margin: 0; /* important sinon ça casse la grille */
 }
 
@@ -154,18 +159,20 @@ button:hover {
   border-left: 4px solid #ed601a;
 
   transition: 0.2s ease;
-  cursor: pointer;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 25px rgba(237, 96, 26, 0.25);
 }
 
 #list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  opacity: 0.6;
+  padding: 30px 10px;
+  font-size: 15px;
 }
 
 .cover {
@@ -179,6 +186,13 @@ button:hover {
   font-size: 50px;
 
   background: linear-gradient(145deg, #2c2c2c, #000);
+  overflow: hidden;
+}
+
+.cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .infos {
@@ -215,6 +229,8 @@ button:hover {
 .actions i {
   font-size: 16px;
   opacity: 0.8;
+  cursor: pointer;
+  user-select: none;
 
   /* zone tactile confortable même si l'icône reste petite visuellement */
   display: inline-flex;
@@ -243,6 +259,115 @@ button:hover {
   background: #ed601a;
   color: #111;
   width: fit-content;
+}
+
+/********************* TOAST **********************/
+#toast {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: #ed601a;
+  color: #f8eedc;
+  padding: 14px 22px;
+  border-radius: 10px;
+  font-weight: bold;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/********************* MODALE CONFIRMATION **********************/
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal-box {
+  background: #1a1a1a;
+  border-radius: 14px;
+  border-left: 4px solid #ed601a;
+  padding: 22px;
+  max-width: 380px;
+  width: 100%;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+
+  /* petite animation d'apparition */
+  animation: modal-pop 0.2s ease;
+}
+
+@keyframes modal-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-box h2 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+}
+
+.modal-text {
+  margin: 0 0 20px 0;
+  opacity: 0.85;
+  font-size: 14px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-actions button {
+  flex: 1;
+  margin: 0;
+}
+
+.btn-secondary {
+  background: #333;
+  color: #f8eedc;
+}
+
+.btn-danger {
+  background: #c0392b;
+}
+
+.btn-danger:hover {
+  background: #a93226;
+}
+
+/********************* SEARCH ACTIONS **********************/
+.search-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.search-actions button {
+  flex: 1;
+  margin: 0;
 }
 
 /********************* RESPONSIVE **********************/
@@ -289,20 +414,6 @@ button:hover {
     gap: 10px;
     width: 90%;
     transition: 0.2s ease;
-    cursor: pointer;
-  }
-
-  .card:hover {    
-    transform: translateY(-5px) scale(1.01);
-    box-shadow: 0 10px 25px rgba(237, 96, 26, 0.25);
-  }
-
-  .cover {
-    transition: 0.3s ease;
-  }
-
-  .card:hover .cover {
-    filter: brightness(1.1);
   }
 
   .actions {
@@ -329,5 +440,13 @@ button:hover {
   .login button,
   .search button {
     width: 100%;
+  }
+
+  .modal-box {
+    max-width: 100%;
+  }
+
+  .search-actions {
+    flex-direction: column;
   }
 }

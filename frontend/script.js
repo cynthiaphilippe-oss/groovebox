@@ -6,31 +6,88 @@ const MODE = "demo";
 ========================= */
 let token = "";
 let vinylsData = [];
-let lastDisplayed = [];
+let editingId = null;
+let pendingDeleteId = null; // id du vinyle en attente de confirmation de suppression
 
 let sortState = {
   criteria: null,
-  direction: 1 // 1 = A→Z / ↑ / ancien→récent
+  direction: 1
 };
 
-let editingId = null; // null = mode ajout, sinon id du vinyle en cours de modification
+/* =========================
+   INIT GENERAL
+========================= */
+const yearInput = document.getElementById("year");
+if (yearInput) {
+  yearInput.max = new Date().getFullYear();
+}
 
-let sortUI = {
-  title: "A → Z",
-  artist: "A → Z",
-  year: "A → Z"
-};
 /* =========================
    INIT DEMO
 ========================= */
 if (MODE === "demo") {
   vinylsData = [
-    { _id: "1", title: "Thriller", artist: "Michael Jackson", year: 1982, genre: "Pop" },
-    { _id: "2", title: "Nevermind", artist: "Nirvana", year: 1991, genre: "Grunge" },
-    { _id: "3", title: "Random Access Memories", artist: "Daft Punk", year: 2013, genre: "Electro" }
+    { _id: "1", title: "Nevermind", artist: "Nirvana", year: 1991, genre: "Grunge" },
+    { _id: "2", title: "Random Access Memories", artist: "Daft Punk", year: 2013, genre: "Electro" },
+    { _id: "3", title: "Back in Black", artist: "AC/DC", year: 1980, genre: "Rock" },
+    { _id: "4", title: "The Wall", artist: "Pink Floyd", year: 1979, genre: "Progressive Rock" },
+    { _id: "5", title: "Hotel California", artist: "Eagles", year: 1976, genre: "Rock" },
+    { _id: "6", title: "Led Zeppelin IV", artist: "Led Zeppelin", year: 1971, genre: "Rock" }
   ];
 
   refresh();
+}
+
+/* =========================
+   UI HELPERS
+========================= */
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+
+  clearTimeout(showToast.timer);
+
+  showToast.timer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2500);
+}
+
+function clearForm() {
+  document.getElementById("title").value = "";
+  document.getElementById("artist").value = "";
+  document.getElementById("year").value = "";
+  document.getElementById("genre").value = "";
+  document.getElementById("genreOther").value = "";
+  document.getElementById("genreOther").style.display = "none";
+  document.getElementById("coverUrl").value = "";
+}
+
+function toggleGenreOther() {
+  const genreSelect = document.getElementById("genre");
+  const genreOther = document.getElementById("genreOther");
+
+  genreOther.style.display = genreSelect.value === "Autre" ? "block" : "none";
+}
+
+function getSelectedGenre() {
+  const genreSelect = document.getElementById("genre").value;
+
+  if (genreSelect === "Autre") {
+    return document.getElementById("genreOther").value.trim();
+  }
+
+  return genreSelect;
+}
+
+function clearSearch() {
+  const searchInput = document.getElementById("search");
+  if (searchInput) searchInput.value = "";
+}
+
+function resetUI() {
+  clearForm();
+  clearSearch();
 }
 
 /* =========================
@@ -66,14 +123,23 @@ async function loadVinyls() {
 }
 
 /* =========================
-   SOURCE UNIQUE AFFICHAGE
+   RESET ORDRE (bouton dédié)
+========================= */
+function resetOrder() {
+  sortState.criteria = null;
+  sortState.direction = 1;
+  refresh();
+  showToast("Ordre réinitialisé");
+}
+
+/* =========================
+   SEARCH + SORT SOURCE UNIQUE
 ========================= */
 function getDisplayedVinyls() {
   let list = [...vinylsData];
 
   // SEARCH
-  const searchInput = document.getElementById("search");
-  const search = searchInput ? searchInput.value.toLowerCase() : "";
+  const search = document.getElementById("search")?.value.toLowerCase() || "";
 
   if (search) {
     list = list.filter(v =>
@@ -90,11 +156,11 @@ function getDisplayedVinyls() {
         return sortState.direction * ((a.year || 0) - (b.year || 0));
       }
 
-      const valA = (a[sortState.criteria] || "").toString().toLowerCase();
-      const valB = (b[sortState.criteria] || "").toString().toLowerCase();
-
-      return sortState.direction * ((a[sortState.criteria] || "").toString().localeCompare((b[sortState.criteria] || "").toString()
-      ));
+      return sortState.direction *
+        (a[sortState.criteria] || "")
+          .toString()
+          .toLowerCase()
+          .localeCompare((b[sortState.criteria] || "").toString().toLowerCase());
     });
   }
 
@@ -110,10 +176,21 @@ function render(vinyls) {
 
   count.textContent = `${vinyls.length} vinyles`;
 
+  if (vinyls.length === 0) {
+    list.innerHTML = `
+      <p class="empty-state">
+        Aucun vinyle trouvé 🎵
+      </p>
+    `;
+    return;
+  }
+
   list.innerHTML = vinyls.map(v => `
     <div class="card">
       <div class="cover">
-        <i class="fa-solid fa-record-vinyl"></i>
+        ${v.cover
+          ? `<img src="${v.cover}" alt="${v.title}" loading="lazy" onerror="handleCoverError(this)">`
+          : `<i class="fa-solid fa-record-vinyl"></i>`}
       </div>
 
       <div class="infos">
@@ -126,10 +203,9 @@ function render(vinyls) {
 
         ${v.genre ? `<span class="badge">${v.genre}</span>` : ""}
 
-        <!-- 🔥 ICI LES ICÔNES -->
         <div class="actions">
-          <i class="fa-solid fa-pen" onclick="editVinyl('${v._id}')"></i>
-          <i class="fa-solid fa-trash" onclick="deleteVinyl('${v._id}')"></i>
+          <i class="fa-solid fa-pen" onclick="editVinyl('${v._id}')" aria-label="Modifier" role="button" tabindex="0"></i>
+          <i class="fa-solid fa-trash" onclick="deleteVinyl('${v._id}')" aria-label="Supprimer" role="button" tabindex="0"></i>
         </div>
       </div>
     </div>
@@ -137,38 +213,95 @@ function render(vinyls) {
 }
 
 /* =========================
-   REFRESH CENTRAL
+   REFRESH
 ========================= */
 function refresh() {
   render(getDisplayedVinyls());
 }
 
 /* =========================
-   ADD VINYL
+   POCHETTE (recherche auto iTunes)
 ========================= */
+async function fetchCoverArt(title, artist) {
+  try {
+    const query = encodeURIComponent(`${artist} ${title}`);
+    const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=album&limit=1`);
+    const data = await res.json();
+
+    if (data.results && data.results.length > 0) {
+      // l'API renvoie une petite miniature (100x100), on demande une version plus grande
+      return data.results[0].artworkUrl100.replace("100x100bb", "600x600bb");
+    }
+
+    return null;
+  } catch (err) {
+    // pas de connexion, API indisponible... on continue sans bloquer l'ajout
+    return null;
+  }
+}
+
+function handleCoverError(img) {
+  img.parentElement.innerHTML = '<i class="fa-solid fa-record-vinyl"></i>';
+}
 async function addVinyl() {
   const title = document.getElementById("title").value.trim();
   const artist = document.getElementById("artist").value.trim();
-  const year = Number(document.getElementById("year").value);
-  const genre = document.getElementById("genre").value.trim();
+  const yearValue = document.getElementById("year").value.trim();
+  const genre = getSelectedGenre();
+  const manualCover = document.getElementById("coverUrl").value.trim();
 
+  const year = yearValue ? Number(yearValue) : null;
+  const currentYear = new Date().getFullYear();
+
+  /* VALIDATION */
   if (!title || !artist) {
-    alert("Titre et artiste sont obligatoires");
+    showToast("Titre et artiste sont obligatoires");
     return;
   }
 
-  const vinylData = { title, artist, year, genre };
+  if (year !== null && (!Number.isInteger(year) || year < 1948 || year > currentYear)) {
+    showToast(`Année entre 1948 et ${currentYear}`);
+    return;
+  }
 
-  // ===== MODE MODIFICATION =====
+  const duplicate = vinylsData.some(v =>
+    v.title.toLowerCase() === title.toLowerCase() &&
+    v.artist.toLowerCase() === artist.toLowerCase() &&
+    v._id !== editingId
+  );
+
+  if (duplicate) {
+    showToast("Ce vinyle existe déjà");
+    return;
+  }
+
+  /* POCHETTE */
+  let cover;
+
+  if (manualCover) {
+    // priorité à l'URL fournie manuellement
+    cover = manualCover;
+  } else if (editingId) {
+    // édition sans nouvelle URL : on garde la pochette existante
+    const existing = vinylsData.find(v => v._id === editingId);
+    cover = existing ? existing.cover : null;
+  } else {
+    // nouvel ajout sans URL manuelle : recherche automatique
+    cover = await fetchCoverArt(title, artist);
+  }
+
+  const vinylData = { title, artist, year, genre, cover };
+
+  /* EDIT */
   if (editingId) {
-
     if (MODE === "demo") {
       const index = vinylsData.findIndex(v => v._id === editingId);
-      if (index !== -1) {
-        vinylsData[index] = { ...vinylsData[index], ...vinylData };
-      }
-      cancelEdit();
+      if (index !== -1) vinylsData[index] = { ...vinylsData[index], ...vinylData };
+
+      editingId = null;
+      resetUI();
       refresh();
+      showToast("Vinyle modifié !");
       return;
     }
 
@@ -181,16 +314,19 @@ async function addVinyl() {
       body: JSON.stringify(vinylData)
     });
 
-    cancelEdit();
+    editingId = null;
+    resetUI();
     loadVinyls();
+    showToast("Vinyle modifié !");
     return;
   }
 
-  // ===== MODE AJOUT =====
+  /* ADD */
   if (MODE === "demo") {
     vinylsData.push({ ...vinylData, _id: Date.now().toString() });
-    clearForm();
+    resetUI();
     refresh();
+    showToast("Vinyle ajouté !");
     return;
   }
 
@@ -203,8 +339,9 @@ async function addVinyl() {
     body: JSON.stringify(vinylData)
   });
 
-  clearForm();
+  resetUI();
   loadVinyls();
+  showToast("Vinyle ajouté !");
 }
 
 /* =========================
@@ -214,30 +351,76 @@ function searchVinyls() {
   refresh();
 }
 
-/* =========================
-   DELETE
-========================= */
-function deleteVinyl(id) {
-  const vinyl = vinylsData.find(v => v._id === id);
-  const label = vinyl ? `"${vinyl.title}" (${vinyl.artist})` : "ce vinyle";
-
-  if (!confirm(`Supprimer ${label} ?`)) return;
-
-  if (MODE === "demo") {
-    vinylsData = vinylsData.filter(v => v._id !== id);
-    refresh();
-    return;
-  }
-
-  alert("Suppression backend à brancher");
+function clearSearchField() {
+  clearSearch();
+  refresh();
 }
 
 /* =========================
-   SORT (A→Z / Z→A OK)
+   DELETE (avec modale de confirmation custom)
+========================= */
+function deleteVinyl(id) {
+  const vinyl = vinylsData.find(v => v._id === id);
+  if (!vinyl) return;
+
+  pendingDeleteId = id;
+
+  document.getElementById("deleteModalText").textContent =
+    `"${vinyl.title}" — ${vinyl.artist}`;
+
+  document.getElementById("deleteModal").classList.add("show");
+}
+
+function closeDeleteModal() {
+  pendingDeleteId = null;
+  document.getElementById("deleteModal").classList.remove("show");
+}
+
+// clic en dehors de la boîte = fermeture
+document.getElementById("deleteModal").addEventListener("click", (e) => {
+  if (e.target.id === "deleteModal") {
+    closeDeleteModal();
+  }
+});
+
+// touche Echap = fermeture
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    closeDeleteModal();
+  }
+});
+
+function confirmDelete() {
+  if (!pendingDeleteId) return;
+  const id = pendingDeleteId;
+
+  if (MODE === "demo") {
+    vinylsData = vinylsData.filter(v => v._id !== id);
+    closeDeleteModal();
+    resetUI();
+    refresh();
+    showToast("Vinyle supprimé !");
+    return;
+  }
+
+  // mode réel : à brancher sur ta route DELETE
+  fetch(`${API}/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: "Bearer " + token
+    }
+  }).then(() => {
+    closeDeleteModal();
+    resetUI();
+    loadVinyls();
+    showToast("Vinyle supprimé !");
+  });
+}
+
+/* =========================
+   SORT
 ========================= */
 function sortVinyls(criteria) {
-
-  // toggle logique
   if (sortState.criteria === criteria) {
     sortState.direction *= -1;
   } else {
@@ -245,47 +428,53 @@ function sortVinyls(criteria) {
     sortState.direction = 1;
   }
 
-  // 👇 on ne trie plus ici : refresh() appelle getDisplayedVinyls()
-  // qui applique recherche + tri ensemble, sur la même source
   refresh();
 }
 
 /* =========================
-   EDIT
+   EDIT MODE
 ========================= */
 function editVinyl(id) {
   const vinyl = vinylsData.find(v => v._id === id);
   if (!vinyl) return;
 
-  // on préremplit le formulaire avec les infos existantes
   document.getElementById("title").value = vinyl.title || "";
   document.getElementById("artist").value = vinyl.artist || "";
   document.getElementById("year").value = vinyl.year || "";
-  document.getElementById("genre").value = vinyl.genre || "";
+  document.getElementById("coverUrl").value = vinyl.cover || "";
+
+  const genreSelect = document.getElementById("genre");
+  const genreOther = document.getElementById("genreOther");
+  const knownGenres = Array.from(genreSelect.options).map(o => o.value);
+
+  if (vinyl.genre && knownGenres.includes(vinyl.genre)) {
+    genreSelect.value = vinyl.genre;
+    genreOther.style.display = "none";
+  } else if (vinyl.genre) {
+    // genre existant mais pas dans la liste prédéfinie
+    genreSelect.value = "Autre";
+    genreOther.value = vinyl.genre;
+    genreOther.style.display = "block";
+  } else {
+    genreSelect.value = "";
+    genreOther.style.display = "none";
+  }
 
   editingId = id;
 
-  // bascule visuelle : formulaire en mode "modification"
   document.getElementById("formTitle").textContent = "Modifier le vinyle";
-  document.getElementById("submitBtn").innerHTML = '<i class="fa-solid fa-check"></i> Enregistrer les modifications';
+  document.getElementById("submitBtn").innerHTML = "Enregistrer";
   document.getElementById("cancelBtn").style.display = "block";
-
-  // on scroll jusqu'au formulaire pour que ce soit clair
-  document.querySelector(".form").scrollIntoView({ behavior: "smooth" });
 }
 
+/* =========================
+   CANCEL EDIT
+========================= */
 function cancelEdit() {
   editingId = null;
   clearForm();
 
   document.getElementById("formTitle").textContent = "Ajouter un vinyle";
-  document.getElementById("submitBtn").innerHTML = '<i class="fa-solid fa-plus"></i> Ajouter';
+  document.getElementById("submitBtn").innerHTML = "Ajouter";
   document.getElementById("cancelBtn").style.display = "none";
-}
-
-function clearForm() {
-  document.getElementById("title").value = "";
-  document.getElementById("artist").value = "";
-  document.getElementById("year").value = "";
-  document.getElementById("genre").value = "";
 }
