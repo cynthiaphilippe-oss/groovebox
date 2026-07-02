@@ -5,45 +5,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>GrooveBox</title>
+
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/png" href="assets/favicon.jpg">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 
 <body>
 
   <!-- HEADER -->
-    <header class="header">
-        <div class="header-content">
-            <img src="assets/LogoGrooveBox.jpg" alt="GrooveBox logo" class="logo">
+  <header class="header">
+    <div class="header-content">
 
-            <div class="title-block">
-            <h1>GrooveBox</h1>
-            <p class="subtitle">Ton groove, ta collection</p>
-            </div>
-        </div>
-    </header>
+      <img src="assets/LogoGrooveBox.jpg" alt="GrooveBox logo" class="logo">
 
-  <!-- AUTH -->
-  <section class="login">
-    <h3>Connexion</h3>
+      <div class="title-block">
+        <h1>GrooveBox</h1>
+        <p class="subtitle">Ton groove, ta collection</p>
+      </div>
 
-    <input id="tokenInput" placeholder="Colle ton token ici">
-    <button onclick="saveToken()">Valider token</button>
+    </div>
+  </header>
 
-    <!-- option future -->
-    <button onclick="loadVinyls()">Charger ma collection</button>
+  <!-- COLLECTION -->
+  <section class="collection">
+
+    <div class="collection-header">
+      <h2>Ma collection</h2>
+      <span id="count">0 vinyles</span>
+    </div>
+    <div class="sort-bar">
+      <button onclick="sortVinyls('title')">A → Z</button>
+      <button onclick="sortVinyls('artist')">Artiste</button>
+      <button onclick="sortVinyls('year')">Année</button>
+      <button onclick="loadVinyls()">Reset ordre</button>
+    </div>
+
+    <div id="list"></div>
+
   </section>
 
   <!-- AJOUT VINYLE -->
   <section class="form">
     <h2>Ajouter un vinyle</h2>
 
-    <input id="title" placeholder="Titre">
-    <input id="artist" placeholder="Artiste">
-    <input id="year" placeholder="Année">
-    <input id="genre" placeholder="Genre">
+    <div class="form-grid">
+      <input id="title" placeholder="Titre">
+      <input id="artist" placeholder="Artiste">
+      <input id="year" placeholder="Année">
+      <input id="genre" placeholder="Genre">
+    </div>
 
-    <button onclick="addVinyl()">Ajouter</button>
+    <button onclick="addVinyl()">
+      <i class="fa-solid fa-plus"></i> Ajouter
+    </button>
   </section>
 
   <!-- RECHERCHE -->
@@ -51,12 +68,13 @@
     <h2>Recherche</h2>
 
     <input id="search" placeholder="Rechercher un artiste">
-    <button onclick="searchVinyls()">Rechercher</button>
+
+    <button onclick="searchVinyls()">
+      <i class="fa-solid fa-magnifying-glass"></i> Rechercher
+    </button>
+
     <button onclick="loadVinyls()">Reset</button>
   </section>
-
-  <!-- LISTE VINYLES -->
-  <section id="list"></section>
 
   <script src="script.js"></script>
 </body>
