@@ -7,6 +7,7 @@ const express = require("express");
 
 
 
+
 const cors = require("cors");
 
 const usersRouter = require("./routes/users");
@@ -16,6 +17,9 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// FRONTEND (plus tard)
+app.use(express.static("public"));
 
 app.get("/", (req, res) => {
   res.json({ message: "Bienvenue sur l'API GrooveBox !" });
