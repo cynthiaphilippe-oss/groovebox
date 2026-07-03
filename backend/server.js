@@ -5,17 +5,17 @@ const connectDB = require("./config/db");
 
 const PORT = process.env.PORT || 3000;
 
-const startServer = async () => {
+const start = async () => {
   try {
-    await connectDB(); // si ta fonction retourne une promesse
+    await connectDB();
 
     app.listen(PORT, () => {
-      console.log(`🚀 GrooveBox API sur le port ${PORT}`);
+      console.log("🚀 GrooveBox API running on port " + PORT);
     });
   } catch (err) {
-    console.error("❌ Erreur DB :", err);
+    console.error("❌ Server crash :", err);
     process.exit(1);
   }
 };
 
-startServer();
+start();
