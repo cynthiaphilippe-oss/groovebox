@@ -1,13 +1,16 @@
-const API = "http://localhost:3000/vinyls";
-const MODE = "demo";
+const API_BASE = "http://localhost:3000";
+const VINYLS_API = `${API_BASE}/vinyls`;
+const USERS_API = `${API_BASE}/users`;
 
 /* =========================
    STATE GLOBAL
 ========================= */
-let token = "";
+let token = localStorage.getItem("groovebox_token") || "";
 let vinylsData = [];
 let editingId = null;
-let pendingDeleteId = null; // id du vinyle en attente de confirmation de suppression
+let pendingDeleteId = null;
+
+let authMode = "login"; // "login" ou "signup"
 
 let sortState = {
   criteria: null,
@@ -15,27 +18,18 @@ let sortState = {
 };
 
 /* =========================
-   INIT GENERAL
+   INIT — vérifie si on est déjà connecté
 ========================= */
+if (token) {
+  showApp();
+  loadVinyls();
+} else {
+  showAuth();
+}
+
 const yearInput = document.getElementById("year");
 if (yearInput) {
   yearInput.max = new Date().getFullYear();
-}
-
-/* =========================
-   INIT DEMO
-========================= */
-if (MODE === "demo") {
-  vinylsData = [
-    { _id: "1", title: "Nevermind", artist: "Nirvana", year: 1991, genre: "Grunge" },
-    { _id: "2", title: "Random Access Memories", artist: "Daft Punk", year: 2013, genre: "Electro" },
-    { _id: "3", title: "Back in Black", artist: "AC/DC", year: 1980, genre: "Rock" },
-    { _id: "4", title: "The Wall", artist: "Pink Floyd", year: 1979, genre: "Progressive Rock" },
-    { _id: "5", title: "Hotel California", artist: "Eagles", year: 1976, genre: "Rock" },
-    { _id: "6", title: "Led Zeppelin IV", artist: "Led Zeppelin", year: 1971, genre: "Rock" }
-  ];
-
-  refresh();
 }
 
 /* =========================
@@ -63,23 +57,6 @@ function clearForm() {
   document.getElementById("coverUrl").value = "";
 }
 
-function toggleGenreOther() {
-  const genreSelect = document.getElementById("genre");
-  const genreOther = document.getElementById("genreOther");
-
-  genreOther.style.display = genreSelect.value === "Autre" ? "block" : "none";
-}
-
-function getSelectedGenre() {
-  const genreSelect = document.getElementById("genre").value;
-
-  if (genreSelect === "Autre") {
-    return document.getElementById("genreOther").value.trim();
-  }
-
-  return genreSelect;
-}
-
 function clearSearch() {
   const searchInput = document.getElementById("search");
   if (searchInput) searchInput.value = "";
@@ -91,35 +68,152 @@ function resetUI() {
 }
 
 /* =========================
-   TOKEN
+   AUTHENTIFICATION
 ========================= */
-function saveToken() {
-  if (MODE === "demo") {
-    alert("Mode demo actif");
+function showAuth() {
+  document.getElementById("authSection").style.display = "flex";
+  document.getElementById("appContent").style.display = "none";
+  document.getElementById("logoutBtn").style.display = "none";
+}
+
+function showApp() {
+  document.getElementById("authSection").style.display = "none";
+  document.getElementById("appContent").style.display = "block";
+  document.getElementById("logoutBtn").style.display = "block";
+}
+
+function toggleAuthMode() {
+  authMode = authMode === "login" ? "signup" : "login";
+
+  const usernameField = document.getElementById("authUsername");
+  const title = document.getElementById("authTitle");
+  const submitBtn = document.getElementById("authSubmitBtn");
+  const toggleText = document.getElementById("authToggleText");
+
+  if (authMode === "signup") {
+    usernameField.style.display = "block";
+    title.textContent = "Inscription";
+    submitBtn.textContent = "Créer mon compte";
+    toggleText.textContent = "Déjà un compte ? Connecte-toi";
+  } else {
+    usernameField.style.display = "none";
+    title.textContent = "Connexion";
+    submitBtn.textContent = "Se connecter";
+    toggleText.textContent = "Pas encore de compte ? Inscris-toi";
+  }
+}
+
+function handleAuthSubmit() {
+  if (authMode === "signup") {
+    signupUser();
+  } else {
+    loginUser();
+  }
+}
+
+async function loginUser() {
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+
+  if (!email || !password) {
+    showToast("Email et mot de passe requis");
     return;
   }
 
-  token = document.getElementById("tokenInput").value;
-  alert("Token enregistré !");
+  try {
+    const res = await fetch(`${USERS_API}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.message || "Connexion impossible");
+      return;
+    }
+
+    token = data.token;
+    localStorage.setItem("groovebox_token", token);
+    localStorage.setItem("groovebox_username", data.user.username);
+
+    document.getElementById("authEmail").value = "";
+    document.getElementById("authPassword").value = "";
+
+    showApp();
+    loadVinyls();
+    showToast(`Bienvenue ${data.user.username} !`);
+
+  } catch (error) {
+    showToast("Impossible de contacter le serveur");
+  }
+}
+
+async function signupUser() {
+  const username = document.getElementById("authUsername").value.trim();
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+
+  if (!username || !email || !password) {
+    showToast("Tous les champs sont requis");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${USERS_API}/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, email, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.message || "Inscription impossible");
+      return;
+    }
+
+    showToast("Compte créé ! Tu peux te connecter.");
+    document.getElementById("authPassword").value = "";
+    toggleAuthMode(); // repasse en mode connexion
+
+  } catch (error) {
+    showToast("Impossible de contacter le serveur");
+  }
+}
+
+function logout() {
+  token = "";
+  vinylsData = [];
+  localStorage.removeItem("groovebox_token");
+  localStorage.removeItem("groovebox_username");
+  showAuth();
+  showToast("Déconnecté");
 }
 
 /* =========================
    LOAD API
 ========================= */
 async function loadVinyls() {
-  if (MODE === "demo") {
-    refresh();
-    return;
-  }
+  try {
+    const res = await fetch(VINYLS_API, {
+      headers: { Authorization: "Bearer " + token }
+    });
 
-  const res = await fetch(API, {
-    headers: {
-      Authorization: "Bearer " + token
+    if (res.status === 401) {
+      // token expiré ou invalide
+      logout();
+      showToast("Session expirée, reconnecte-toi");
+      return;
     }
-  });
 
-  vinylsData = await res.json();
-  refresh();
+    vinylsData = await res.json();
+    refresh();
+
+  } catch (error) {
+    showToast("Impossible de charger la collection");
+  }
 }
 
 /* =========================
@@ -138,7 +232,6 @@ function resetOrder() {
 function getDisplayedVinyls() {
   let list = [...vinylsData];
 
-  // SEARCH
   const search = document.getElementById("search")?.value.toLowerCase() || "";
 
   if (search) {
@@ -148,7 +241,6 @@ function getDisplayedVinyls() {
     );
   }
 
-  // SORT
   if (sortState.criteria) {
     list.sort((a, b) => {
 
@@ -229,13 +321,11 @@ async function fetchCoverArt(title, artist) {
     const data = await res.json();
 
     if (data.results && data.results.length > 0) {
-      // l'API renvoie une petite miniature (100x100), on demande une version plus grande
       return data.results[0].artworkUrl100.replace("100x100bb", "600x600bb");
     }
 
     return null;
   } catch (err) {
-    // pas de connexion, API indisponible... on continue sans bloquer l'ajout
     return null;
   }
 }
@@ -243,6 +333,30 @@ async function fetchCoverArt(title, artist) {
 function handleCoverError(img) {
   img.parentElement.innerHTML = '<i class="fa-solid fa-record-vinyl"></i>';
 }
+
+/* =========================
+   GENRE (select + champ "Autre")
+========================= */
+function toggleGenreOther() {
+  const genreSelect = document.getElementById("genre");
+  const genreOther = document.getElementById("genreOther");
+
+  genreOther.style.display = genreSelect.value === "Autre" ? "block" : "none";
+}
+
+function getSelectedGenre() {
+  const genreSelect = document.getElementById("genre").value;
+
+  if (genreSelect === "Autre") {
+    return document.getElementById("genreOther").value.trim();
+  }
+
+  return genreSelect;
+}
+
+/* =========================
+   ADD / EDIT VINYL
+========================= */
 async function addVinyl() {
   const title = document.getElementById("title").value.trim();
   const artist = document.getElementById("artist").value.trim();
@@ -279,69 +393,55 @@ async function addVinyl() {
   let cover;
 
   if (manualCover) {
-    // priorité à l'URL fournie manuellement
     cover = manualCover;
   } else if (editingId) {
-    // édition sans nouvelle URL : on garde la pochette existante
     const existing = vinylsData.find(v => v._id === editingId);
     cover = existing ? existing.cover : null;
   } else {
-    // nouvel ajout sans URL manuelle : recherche automatique
     cover = await fetchCoverArt(title, artist);
   }
 
   const vinylData = { title, artist, year, genre, cover };
 
-  /* EDIT */
-  if (editingId) {
-    if (MODE === "demo") {
-      const index = vinylsData.findIndex(v => v._id === editingId);
-      if (index !== -1) vinylsData[index] = { ...vinylsData[index], ...vinylData };
+  try {
+    if (editingId) {
+      /* EDIT */
+      const res = await fetch(`${VINYLS_API}/${editingId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        },
+        body: JSON.stringify(vinylData)
+      });
+
+      if (!res.ok) throw new Error("Erreur lors de la modification");
 
       editingId = null;
       resetUI();
-      refresh();
+      await loadVinyls();
       showToast("Vinyle modifié !");
-      return;
+
+    } else {
+      /* ADD */
+      const res = await fetch(VINYLS_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        },
+        body: JSON.stringify(vinylData)
+      });
+
+      if (!res.ok) throw new Error("Erreur lors de l'ajout");
+
+      resetUI();
+      await loadVinyls();
+      showToast("Vinyle ajouté !");
     }
-
-    await fetch(`${API}/${editingId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token
-      },
-      body: JSON.stringify(vinylData)
-    });
-
-    editingId = null;
-    resetUI();
-    loadVinyls();
-    showToast("Vinyle modifié !");
-    return;
+  } catch (error) {
+    showToast("Une erreur est survenue, réessaie");
   }
-
-  /* ADD */
-  if (MODE === "demo") {
-    vinylsData.push({ ...vinylData, _id: Date.now().toString() });
-    resetUI();
-    refresh();
-    showToast("Vinyle ajouté !");
-    return;
-  }
-
-  await fetch(API, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token
-    },
-    body: JSON.stringify(vinylData)
-  });
-
-  resetUI();
-  loadVinyls();
-  showToast("Vinyle ajouté !");
 }
 
 /* =========================
@@ -376,45 +476,38 @@ function closeDeleteModal() {
   document.getElementById("deleteModal").classList.remove("show");
 }
 
-// clic en dehors de la boîte = fermeture
 document.getElementById("deleteModal").addEventListener("click", (e) => {
   if (e.target.id === "deleteModal") {
     closeDeleteModal();
   }
 });
 
-// touche Echap = fermeture
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     closeDeleteModal();
   }
 });
 
-function confirmDelete() {
+async function confirmDelete() {
   if (!pendingDeleteId) return;
   const id = pendingDeleteId;
 
-  if (MODE === "demo") {
-    vinylsData = vinylsData.filter(v => v._id !== id);
-    closeDeleteModal();
-    resetUI();
-    refresh();
-    showToast("Vinyle supprimé !");
-    return;
-  }
+  try {
+    const res = await fetch(`${VINYLS_API}/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: "Bearer " + token }
+    });
 
-  // mode réel : à brancher sur ta route DELETE
-  fetch(`${API}/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: "Bearer " + token
-    }
-  }).then(() => {
+    if (!res.ok) throw new Error("Erreur lors de la suppression");
+
     closeDeleteModal();
     resetUI();
-    loadVinyls();
+    await loadVinyls();
     showToast("Vinyle supprimé !");
-  });
+
+  } catch (error) {
+    showToast("Impossible de supprimer ce vinyle");
+  }
 }
 
 /* =========================
@@ -451,7 +544,6 @@ function editVinyl(id) {
     genreSelect.value = vinyl.genre;
     genreOther.style.display = "none";
   } else if (vinyl.genre) {
-    // genre existant mais pas dans la liste prédéfinie
     genreSelect.value = "Autre";
     genreOther.value = vinyl.genre;
     genreOther.style.display = "block";
@@ -465,6 +557,8 @@ function editVinyl(id) {
   document.getElementById("formTitle").textContent = "Modifier le vinyle";
   document.getElementById("submitBtn").innerHTML = "Enregistrer";
   document.getElementById("cancelBtn").style.display = "block";
+
+  document.querySelector(".form").scrollIntoView({ behavior: "smooth" });
 }
 
 /* =========================
