@@ -10,10 +10,10 @@ const start = async () => {
     await connectDB();
 
     app.listen(PORT, () => {
-      console.log("🚀 GrooveBox API running on port " + PORT);
+      console.log("GrooveBox API running on port " + PORT);
     });
   } catch (err) {
-    console.error("❌ Server crash :", err);
+    console.error("Server crash :", err);
     process.exit(1);
   }
 };
