@@ -331,11 +331,13 @@ function refresh() {
 async function fetchCoverArt(title, artist) {
   try {
     const query = encodeURIComponent(`${artist} ${title}`);
-    const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=album&limit=1`);
+    const res = await fetch(`https://itunes.apple.com/search?term=${query}&media=music&entity=album&limit=1`);
     const data = await res.json();
 
     if (data.results && data.results.length > 0) {
-      return data.results[0].artworkUrl100.replace("100x100bb", "600x600bb");
+      const rawArtwork = data.results[0].artworkUrl100;
+      // remplace la taille (ex: 100x100bb ou 316x316bb) par une plus grande, quel que soit le format d'origine
+      return rawArtwork.replace(/\d+x\d+bb/, "600x600bb");
     }
 
     return null;
