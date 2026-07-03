@@ -196,13 +196,14 @@ function logout() {
    LOAD API
 ========================= */
 async function loadVinyls() {
+  showLoading();
+
   try {
     const res = await fetch(VINYLS_API, {
       headers: { Authorization: "Bearer " + token }
     });
 
     if (res.status === 401) {
-      // token expiré ou invalide
       logout();
       showToast("Session expirée, reconnecte-toi");
       return;
@@ -213,7 +214,19 @@ async function loadVinyls() {
 
   } catch (error) {
     showToast("Impossible de charger la collection");
+    document.getElementById("list").innerHTML = `
+      <p class="empty-state">Impossible de charger la collection 😕</p>
+    `;
   }
+}
+
+function showLoading() {
+  document.getElementById("list").innerHTML = `
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement de la collection...</p>
+    </div>
+  `;
 }
 
 /* =========================
@@ -222,6 +235,7 @@ async function loadVinyls() {
 function resetOrder() {
   sortState.criteria = null;
   sortState.direction = 1;
+  updateSortButtonsUI();
   refresh();
   showToast("Ordre réinitialisé");
 }
@@ -390,6 +404,9 @@ async function addVinyl() {
   }
 
   /* POCHETTE */
+  const submitBtn = document.getElementById("submitBtn");
+  const originalBtnHTML = submitBtn.innerHTML;
+
   let cover;
 
   if (manualCover) {
@@ -398,8 +415,13 @@ async function addVinyl() {
     const existing = vinylsData.find(v => v._id === editingId);
     cover = existing ? existing.cover : null;
   } else {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Recherche de la pochette...`;
     cover = await fetchCoverArt(title, artist);
   }
+
+  submitBtn.disabled = false;
+  submitBtn.innerHTML = originalBtnHTML;
 
   const vinylData = { title, artist, year, genre, cover };
 
@@ -513,6 +535,26 @@ async function confirmDelete() {
 /* =========================
    SORT
 ========================= */
+const sortLabels = { title: "A → Z", artist: "Artiste", year: "Année" };
+
+function updateSortButtonsUI() {
+  Object.keys(sortLabels).forEach(key => {
+    const btn = document.getElementById(`sortBtn-${key}`);
+    if (!btn) return;
+    btn.classList.remove("active");
+    btn.textContent = sortLabels[key];
+  });
+
+  if (sortState.criteria) {
+    const btn = document.getElementById(`sortBtn-${sortState.criteria}`);
+    if (btn) {
+      btn.classList.add("active");
+      const arrow = sortState.direction === 1 ? "↑" : "↓";
+      btn.textContent = `${sortLabels[sortState.criteria]} ${arrow}`;
+    }
+  }
+}
+
 function sortVinyls(criteria) {
   if (sortState.criteria === criteria) {
     sortState.direction *= -1;
@@ -521,6 +563,7 @@ function sortVinyls(criteria) {
     sortState.direction = 1;
   }
 
+  updateSortButtonsUI();
   refresh();
 }
 

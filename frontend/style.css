@@ -4,7 +4,7 @@
 
 /********************* GLOBAL **********************/
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Poppins', Arial, sans-serif;
   background: black;
   color: #f8eedc;
 }
@@ -46,7 +46,7 @@ body {
 
 .header h1 {
   margin: 0;
-  font-size: 28px;
+  font-size: 34px;
   color: #ed601a;
 }
 
@@ -87,9 +87,21 @@ body {
   font-size: 14px;
 }
 
+.sort-bar button.active {
+  background: #f8eedc;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
 /********************* TITRES **********************/
 h1, h2, h3 {
   color: #ed601a;
+  font-family: 'Bebas Neue', 'Poppins', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+h1 {
+  letter-spacing: 1.5px;
 }
 
 /********************* LAYOUT **********************/
@@ -184,6 +196,31 @@ button:hover {
   opacity: 0.6;
   padding: 30px 10px;
   font-size: 15px;
+}
+
+.loading-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 40px 10px;
+  opacity: 0.75;
+  font-size: 14px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(237, 96, 26, 0.25);
+  border-top-color: #ed601a;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .cover {
