@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:3000";
+const API_BASE = "https://groovebox.onrender.com";
 const VINYLS_API = `${API_BASE}/vinyls`;
 const USERS_API = `${API_BASE}/users`;
 
