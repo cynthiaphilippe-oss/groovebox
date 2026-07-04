@@ -8,6 +8,7 @@
   <title>GrooveBox</title>
 
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="mobile.css">
   <link rel="icon" type="image/png" href="assets/favicon.jpg">
 
   <!-- Google Fonts -->
@@ -35,7 +36,7 @@
     </div>
 
     <button id="logoutBtn" onclick="logout()" class="btn-secondary logout-btn" style="display:none;">
-      <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+      <i class="fa-solid fa-right-from-bracket"></i><span class="logout-text"> Déconnexion</span>
     </button>
   </header>
 
@@ -87,8 +88,8 @@
       </div>
 
       <div class="form-grid">
-        <input id="title" placeholder="Titre">
-        <input id="artist" placeholder="Artiste">
+        <input id="title" placeholder="Titre" oninput="scheduleCoverSearch()">
+        <input id="artist" placeholder="Artiste" oninput="scheduleCoverSearch()">
         <input id="year" placeholder="Année" type="number" inputmode="numeric" min="1948" max="2026">
 
         <select id="genre" onchange="toggleGenreOther()">
@@ -114,7 +115,19 @@
         <input id="genreOther" placeholder="Préciser le genre" style="display:none;">
       </div>
 
-      <input id="coverUrl" placeholder="URL pochette (optionnel — sinon recherche auto)">
+      <div class="cover-actions-row">
+        <button type="button" class="btn-secondary" onclick="document.getElementById('cameraInput').click()">
+          <i class="fa-solid fa-camera"></i> Prendre une photo
+        </button>
+      </div>
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleCameraCapture(event)">
+
+      <div id="coverPicker" class="cover-picker" style="display:none;">
+        <p class="cover-picker-label">Choisis une pochette :</p>
+        <div id="coverResults" class="cover-results"></div>
+      </div>
+
+      <input id="coverUrl" placeholder="Ou colle une URL d'image directement (optionnel)">
 
       <button id="submitBtn" onclick="addVinyl()">
         <i class="fa-solid fa-plus"></i> Ajouter

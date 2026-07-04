@@ -1,0 +1,207 @@
+/* ============================================
+   MOBILE.CSS — styles spécifiques aux petits écrans
+   Ce fichier n'est utilisé qu'en dessous de 768px de large
+   ============================================ */
+
+@media (max-width: 768px) {
+
+  body {
+    padding-bottom: 78px; /* laisse la place à la nav fixe en bas */
+  }
+
+  #bottomNav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #1a1a1a;
+    border-top: 2px solid #ed601a;
+    z-index: 9000;
+    padding: 6px 0;
+  }
+
+  #bottomNav button {
+    flex: 1;
+    margin: 0;
+    background: transparent;
+    color: #f8eedc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 0;
+    font-size: 11px;
+    min-height: 0;
+    border-radius: 0;
+  }
+
+  #bottomNav button i {
+    font-size: 18px;
+  }
+
+  #bottomNav button:hover,
+  #bottomNav button:active {
+    transform: none;
+    opacity: 1;
+    background: transparent;
+  }
+
+  #bottomNav button.active-nav {
+    color: #ed601a;
+  }
+
+  .sheet-close {
+    display: block;
+  }
+
+  #vinylFormSection,
+  #searchSection {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    margin: 0;
+    border-radius: 18px 18px 0 0;
+    z-index: 9500;
+
+    transform: translateY(110%);
+    transition: transform 0.3s ease;
+  }
+
+  #vinylFormSection.sheet-open,
+  #searchSection.sheet-open {
+    transform: translateY(0);
+  }
+}
+
+/********************* RESPONSIVE GENERAL **********************/
+@media (max-width: 768px) {
+
+  /* le bouton déconnexion reste en haut à droite, mais en icône seule pour gagner de la place */
+  .logout-btn {
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  .logout-text {
+    display: none;
+  }
+
+  .logo {
+    width: 60px;
+  }
+
+  .header h1 {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  section {
+    width: 95%;
+    margin: 10px auto;
+    padding: 12px;
+  }
+
+  input,
+  button {
+    font-size: 16px; /* évite le zoom auto iOS au focus */
+  }
+
+  /* boutons plus hauts = plus faciles à taper au pouce */
+  button {
+    padding: 14px;
+    min-height: 48px;
+  }
+
+  #list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    transition: 0.2s ease;
+  }
+
+  .cover {
+    height: 100px;
+    font-size: 34px;
+  }
+
+  .infos {
+    padding: 8px;
+    gap: 1px;
+  }
+
+  .infos h3 {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
+  .artist {
+    font-size: 11px;
+  }
+
+  .details {
+    font-size: 10px;
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 1px 6px;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .actions i {
+    font-size: 18px;
+    width: 40px;
+    height: 40px;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cover-actions-row {
+    flex-direction: column;
+  }
+
+  .login button {
+    width: 100%;
+  }
+
+  .modal-box {
+    max-width: 100%;
+  }
+
+  .search-actions {
+    flex-direction: column;
+  }
+}

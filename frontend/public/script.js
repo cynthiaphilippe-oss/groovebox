@@ -83,6 +83,7 @@ function clearForm() {
   document.getElementById("genreOther").value = "";
   document.getElementById("genreOther").style.display = "none";
   document.getElementById("coverUrl").value = "";
+  resetCoverPicker();
 }
 
 function clearSearch() {
@@ -365,23 +366,140 @@ function refresh() {
 }
 
 /* =========================
-   POCHETTE (recherche auto iTunes)
+   POCHETTE (vignettes cliquables)
 ========================= */
-async function fetchCoverArt(title, artist) {
+let selectedCover = null;
+let coverSearchTimer = null;
+
+function scheduleCoverSearch() {
+  clearTimeout(coverSearchTimer);
+  coverSearchTimer = setTimeout(triggerCoverSearch, 700);
+}
+
+async function triggerCoverSearch() {
+  const title = document.getElementById("title").value.trim();
+  const artist = document.getElementById("artist").value.trim();
+  const picker = document.getElementById("coverPicker");
+  const container = document.getElementById("coverResults");
+
+  if (!title || !artist) {
+    picker.style.display = "none";
+    return;
+  }
+
+  picker.style.display = "block";
+  container.innerHTML = `<div class="cover-loading">Recherche en cours...</div>`;
+
   try {
     const query = `title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
-    const res = await fetch(`${VINYLS_API}/cover-art?${query}`, {
+    const res = await fetch(`${VINYLS_API}/cover-search?${query}`, {
       headers: { Authorization: "Bearer " + token }
     });
 
-    if (!res.ok) return null;
+    if (!res.ok) {
+      container.innerHTML = `<p class="cover-empty">Recherche indisponible pour le moment</p>`;
+      return;
+    }
 
     const data = await res.json();
-    return data.cover || null;
+
+    if (!data.results || data.results.length === 0) {
+      container.innerHTML = `<p class="cover-empty">Aucune pochette trouvée — tu peux coller une URL en dessous</p>`;
+      return;
+    }
+
+    container.innerHTML = data.results.map(r => `
+      <img
+        src="${r.cover}"
+        alt="${r.album}"
+        title="${r.album} — ${r.artist}"
+        class="cover-option"
+        onclick="selectCover('${r.cover}', this)"
+        onerror="this.remove()"
+      >
+    `).join("");
 
   } catch (err) {
-    return null;
+    container.innerHTML = `<p class="cover-empty">Recherche indisponible pour le moment</p>`;
   }
+}
+
+function selectCover(url, imgEl) {
+  selectedCover = url;
+  document.querySelectorAll(".cover-option").forEach(el => el.classList.remove("selected"));
+  imgEl.classList.add("selected");
+}
+
+function resetCoverPicker() {
+  selectedCover = null;
+  document.getElementById("coverPicker").style.display = "none";
+  document.getElementById("coverResults").innerHTML = "";
+}
+
+/* =========================
+   PHOTO DEPUIS L'APPAREIL (mobile)
+========================= */
+function handleCameraCapture(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    const img = new Image();
+
+    img.onload = () => {
+      // on redimensionne et compresse pour ne pas stocker des photos énormes
+      const maxSize = 500;
+      let { width, height } = img;
+
+      if (width > height && width > maxSize) {
+        height = height * (maxSize / width);
+        width = maxSize;
+      } else if (height > maxSize) {
+        width = width * (maxSize / height);
+        height = maxSize;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+      addCameraShotToResults(dataUrl);
+      showToast("Photo prête !");
+    };
+
+    img.src = e.target.result;
+  };
+
+  reader.readAsDataURL(file);
+  event.target.value = ""; // permet de reprendre une photo derrière si besoin
+}
+
+function addCameraShotToResults(dataUrl) {
+  const picker = document.getElementById("coverPicker");
+  const container = document.getElementById("coverResults");
+
+  picker.style.display = "block";
+
+  // enlève le message vide/chargement s'il y en avait un
+  const placeholder = container.querySelector(".cover-empty, .cover-loading");
+  if (placeholder) placeholder.remove();
+
+  // remplace une éventuelle photo précédemment prise
+  const existingShot = container.querySelector(".camera-shot");
+  if (existingShot) existingShot.remove();
+
+  const img = document.createElement("img");
+  img.src = dataUrl;
+  img.title = "Ta photo";
+  img.className = "cover-option camera-shot";
+  img.onclick = () => selectCover(dataUrl, img);
+
+  container.prepend(img);
+  selectCover(dataUrl, img);
 }
 
 function handleCoverError(img) {
@@ -444,24 +562,18 @@ async function addVinyl() {
   }
 
   /* POCHETTE */
-  const submitBtn = document.getElementById("submitBtn");
-  const originalBtnHTML = submitBtn.innerHTML;
-
   let cover;
 
   if (manualCover) {
     cover = manualCover;
+  } else if (selectedCover) {
+    cover = selectedCover;
   } else if (editingId) {
     const existing = vinylsData.find(v => v._id === editingId);
     cover = existing ? existing.cover : null;
   } else {
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Recherche de la pochette...`;
-    cover = await fetchCoverArt(title, artist);
+    cover = null;
   }
-
-  submitBtn.disabled = false;
-  submitBtn.innerHTML = originalBtnHTML;
 
   const vinylData = { title, artist, year, genre, cover };
 
