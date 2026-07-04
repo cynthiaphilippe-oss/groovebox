@@ -237,11 +237,22 @@ async function loadVinyls() {
       return;
     }
 
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      vinylsData = [];
+      document.getElementById("list").innerHTML = `
+        <p class="empty-state">Erreur serveur : ${errData.message || "impossible de charger la collection"} 😕</p>
+      `;
+      showToast("Erreur lors du chargement de la collection");
+      return;
+    }
+
     vinylsData = await res.json();
     refresh();
 
   } catch (error) {
-    showToast("Impossible de charger la collection");
+    vinylsData = [];
+    showToast("Impossible de contacter le serveur");
     document.getElementById("list").innerHTML = `
       <p class="empty-state">Impossible de charger la collection 😕</p>
     `;
