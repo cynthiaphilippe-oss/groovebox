@@ -163,10 +163,6 @@ button:hover {
   margin: 0; /* important sinon ça casse la grille */
 }
 
-/* bouton full width */
-.form button {
-  width: 100%;
-}
 
 /********************* CARDS **********************/
 .card {
@@ -644,7 +640,6 @@ button:hover {
     grid-template-columns: 1fr;
   }
 
-  .form button,
   .login button,
   .search button {
     width: 100%;
