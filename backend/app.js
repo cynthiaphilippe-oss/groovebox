@@ -7,7 +7,6 @@ const express = require("express");
 
 
 
-
 const cors = require("cors");
 
 const usersRouter = require("./routes/users");
@@ -16,7 +15,7 @@ const vinylsRouter = require("./routes/vinyls");
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 
 // FRONTEND (plus tard)
 app.use(express.static("public"));
