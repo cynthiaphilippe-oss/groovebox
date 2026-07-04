@@ -12,6 +12,11 @@ const vinylSchema = new mongoose.Schema({
   year: Number,
   genre: String,
 
+  cover: {
+    type: String,
+    default: null,
+  },
+
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -23,5 +28,3 @@ const vinylSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
-
-module.exports = mongoose.model("Vinyl", vinylSchema);

@@ -3,13 +3,14 @@ const Vinyl = require("../models/Vinyl");
 // créer vinyle
 exports.createVinyl = async (req, res) => {
   try {
-    const { title, artist, year, genre } = req.body;
+    const { title, artist, year, genre, cover } = req.body;
 
     const newVinyl = new Vinyl({
       title,
       artist,
       year,
       genre,
+      cover,
       user: req.user.userId,
     });
 
