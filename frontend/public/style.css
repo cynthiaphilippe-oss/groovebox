@@ -640,8 +640,7 @@ button:hover {
     grid-template-columns: 1fr;
   }
 
-  .login button,
-  .search button {
+  .login button {
     width: 100%;
   }
 
