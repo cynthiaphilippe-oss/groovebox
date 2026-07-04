@@ -25,6 +25,34 @@ exports.createVinyl = async (req, res) => {
   }
 };
 
+
+// proxy vers l'API iTunes (évite les soucis de CORS côté navigateur)
+exports.getCoverArt = async (req, res) => {
+  try {
+    const { title, artist } = req.query;
+
+    if (!title || !artist) {
+      return res.status(400).json({ message: "title et artist sont requis" });
+    }
+
+    const query = encodeURIComponent(`${artist} ${title}`);
+    const response = await fetch(
+      `https://itunes.apple.com/search?term=${query}&media=music&entity=album&limit=1`
+    );
+    const data = await response.json();
+
+    if (data.results && data.results.length > 0) {
+      const cover = data.results[0].artworkUrl100.replace(/\d+x\d+bb/, "600x600bb");
+      return res.json({ cover });
+    }
+
+    return res.json({ cover: null });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // récupérer vinyles user
 exports.getUserVinyls = async (req, res) => {
   try {
