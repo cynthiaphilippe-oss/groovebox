@@ -418,6 +418,119 @@ button:hover {
   margin: 0;
 }
 
+/********************* NAV MOBILE + BOTTOM SHEETS **********************/
+#bottomNav {
+  display: none;
+}
+
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sheet-close {
+  width: auto;
+  margin: 0;
+  padding: 6px 10px;
+  background: transparent;
+  color: #f8eedc;
+  font-size: 18px;
+}
+
+.sheet-close:hover {
+  background: transparent;
+  opacity: 0.7;
+}
+
+.sheet-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9400;
+}
+
+.sheet-backdrop.show {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 78px; /* laisse la place à la nav fixe en bas */
+  }
+
+  #bottomNav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #1a1a1a;
+    border-top: 2px solid #ed601a;
+    z-index: 9000;
+    padding: 6px 0;
+  }
+
+  #bottomNav button {
+    flex: 1;
+    margin: 0;
+    background: transparent;
+    color: #f8eedc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 0;
+    font-size: 11px;
+    min-height: 0;
+    border-radius: 0;
+  }
+
+  #bottomNav button i {
+    font-size: 18px;
+  }
+
+  #bottomNav button:hover,
+  #bottomNav button:active {
+    transform: none;
+    opacity: 1;
+    background: transparent;
+  }
+
+  #bottomNav button.active-nav {
+    color: #ed601a;
+  }
+
+  .sheet-close {
+    display: block;
+  }
+
+  #vinylFormSection,
+  #searchSection {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    margin: 0;
+    border-radius: 18px 18px 0 0;
+    z-index: 9500;
+
+    transform: translateY(110%);
+    transition: transform 0.3s ease;
+  }
+
+  #vinylFormSection.sheet-open,
+  #searchSection.sheet-open {
+    transform: translateY(0);
+  }
+}
+
 /********************* RESPONSIVE **********************/
 @media (max-width: 768px) {
 

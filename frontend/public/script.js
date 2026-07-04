@@ -33,6 +33,34 @@ if (yearInput) {
 }
 
 /* =========================
+   BOTTOM SHEETS (nav mobile)
+========================= */
+function openSheet(name) {
+  closeSheets();
+
+  const el = name === "add"
+    ? document.getElementById("vinylFormSection")
+    : document.getElementById("searchSection");
+
+  el.classList.add("sheet-open");
+  document.getElementById("sheetBackdrop").classList.add("show");
+  updateNavActive(name);
+}
+
+function closeSheets() {
+  document.getElementById("vinylFormSection").classList.remove("sheet-open");
+  document.getElementById("searchSection").classList.remove("sheet-open");
+  document.getElementById("sheetBackdrop").classList.remove("show");
+  updateNavActive("collection");
+}
+
+function updateNavActive(name) {
+  document.querySelectorAll("#bottomNav button").forEach(b => b.classList.remove("active-nav"));
+  const btn = document.getElementById(`navBtn-${name}`);
+  if (btn) btn.classList.add("active-nav");
+}
+
+/* =========================
    UI HELPERS
 ========================= */
 function showToast(message) {
@@ -330,17 +358,16 @@ function refresh() {
 ========================= */
 async function fetchCoverArt(title, artist) {
   try {
-    const query = encodeURIComponent(`${artist} ${title}`);
-    const res = await fetch(`https://itunes.apple.com/search?term=${query}&media=music&entity=album&limit=1`);
+    const query = `title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
+    const res = await fetch(`${VINYLS_API}/cover-art?${query}`, {
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    if (!res.ok) return null;
+
     const data = await res.json();
+    return data.cover || null;
 
-    if (data.results && data.results.length > 0) {
-      const rawArtwork = data.results[0].artworkUrl100;
-      // remplace la taille (ex: 100x100bb ou 316x316bb) par une plus grande, quel que soit le format d'origine
-      return rawArtwork.replace(/\d+x\d+bb/, "600x600bb");
-    }
-
-    return null;
   } catch (err) {
     return null;
   }
@@ -443,6 +470,7 @@ async function addVinyl() {
 
       editingId = null;
       resetUI();
+      closeSheets();
       await loadVinyls();
       showToast("Vinyle modifié !");
 
@@ -460,6 +488,7 @@ async function addVinyl() {
       if (!res.ok) throw new Error("Erreur lors de l'ajout");
 
       resetUI();
+      closeSheets();
       await loadVinyls();
       showToast("Vinyle ajouté !");
     }
@@ -603,7 +632,8 @@ function editVinyl(id) {
   document.getElementById("submitBtn").innerHTML = "Enregistrer";
   document.getElementById("cancelBtn").style.display = "block";
 
-  document.querySelector(".form").scrollIntoView({ behavior: "smooth" });
+  openSheet("add");
+  document.getElementById("vinylFormSection").scrollIntoView({ behavior: "smooth" });
 }
 
 /* =========================
@@ -612,6 +642,7 @@ function editVinyl(id) {
 function cancelEdit() {
   editingId = null;
   clearForm();
+  closeSheets();
 
   document.getElementById("formTitle").textContent = "Ajouter un vinyle";
   document.getElementById("submitBtn").innerHTML = "Ajouter";

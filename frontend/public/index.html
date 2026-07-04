@@ -78,8 +78,13 @@
     </section>
 
     <!-- AJOUT / MODIFICATION VINYLE -->
-    <section class="form">
-      <h2 id="formTitle">Ajouter un vinyle</h2>
+    <section id="vinylFormSection" class="form">
+      <div class="sheet-header">
+        <h2 id="formTitle">Ajouter un vinyle</h2>
+        <button class="sheet-close" onclick="closeSheets()" aria-label="Fermer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
 
       <div class="form-grid">
         <input id="title" placeholder="Titre">
@@ -121,8 +126,13 @@
     </section>
 
     <!-- RECHERCHE -->
-    <section class="search">
-      <h2>Recherche</h2>
+    <section id="searchSection" class="search">
+      <div class="sheet-header">
+        <h2>Recherche</h2>
+        <button class="sheet-close" onclick="closeSheets()" aria-label="Fermer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
 
       <input id="search" placeholder="Rechercher un artiste" oninput="searchVinyls()">
 
@@ -138,6 +148,25 @@
     </section>
 
   </div>
+
+  <!-- FOND SOMBRE DERRIÈRE LES PANNEAUX MOBILES -->
+  <div id="sheetBackdrop" class="sheet-backdrop" onclick="closeSheets()"></div>
+
+  <!-- NAV MOBILE EN BAS -->
+  <nav id="bottomNav">
+    <button id="navBtn-collection" onclick="closeSheets()">
+      <i class="fa-solid fa-record-vinyl"></i>
+      <span>Collection</span>
+    </button>
+    <button id="navBtn-add" onclick="openSheet('add')">
+      <i class="fa-solid fa-plus"></i>
+      <span>Ajouter</span>
+    </button>
+    <button id="navBtn-search" onclick="openSheet('search')">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <span>Recherche</span>
+    </button>
+  </nav>
 
   <!-- MODALE DE CONFIRMATION SUPPRESSION -->
   <div id="deleteModal" class="modal-overlay">
