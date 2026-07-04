@@ -427,11 +427,18 @@ button:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+}
+
+.sheet-header h2 {
+  margin: 0;
+  flex: 1;
 }
 
 .sheet-close {
   width: auto;
-  margin: 0;
+  flex-shrink: 0;
+  margin: 0 0 0 auto;
   padding: 6px 10px;
   background: transparent;
   color: #f8eedc;
