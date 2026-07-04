@@ -3,13 +3,14 @@ const Vinyl = require("../models/Vinyl");
 // créer vinyle
 exports.createVinyl = async (req, res) => {
   try {
-    const { title, artist, year, genre } = req.body;
+    const { title, artist, year, genre, cover } = req.body;
 
     const newVinyl = new Vinyl({
       title,
       artist,
       year,
       genre,
+      cover,
       user: req.user.userId,
     });
 
@@ -21,6 +22,7 @@ exports.createVinyl = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("ERREUR createVinyl:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -33,6 +35,7 @@ exports.getUserVinyls = async (req, res) => {
     res.json(vinyls);
 
   } catch (error) {
+    console.error("ERREUR getUserVinyls:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -63,6 +66,7 @@ exports.searchVinyls = async (req, res) => {
     res.json(vinyls);
 
   } catch (error) {
+    console.error("ERREUR searchVinyls:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -82,6 +86,7 @@ exports.getOneVinyl = async (req, res) => {
     res.json(vinyl);
 
   } catch (error) {
+    console.error("ERREUR getOneVinyl:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -108,6 +113,7 @@ exports.updateVinyl = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("ERREUR updateVinyl:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -128,6 +134,7 @@ exports.deleteVinyl = async (req, res) => {
     res.json({ message: "Vinyle supprimé" });
 
   } catch (error) {
+    console.error("ERREUR deleteVinyl:", error);
     res.status(500).json({ message: error.message });
   }
 };

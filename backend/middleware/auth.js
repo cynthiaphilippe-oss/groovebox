@@ -10,10 +10,6 @@ module.exports = (req, res, next) => {
 
     const token = authHeader.split(" ")[1]; // "Bearer TOKEN"
 
-    // ICI tu ajoutes les logs
-    console.log("AUTH HEADER:", authHeader);
-    console.log("TOKEN:", token);
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     req.user = decoded;
@@ -21,6 +17,7 @@ module.exports = (req, res, next) => {
     next();
 
   } catch (error) {
+    console.error("ERREUR auth middleware:", error.message);
     res.status(401).json({ message: "Token invalide" });
   }
 };
