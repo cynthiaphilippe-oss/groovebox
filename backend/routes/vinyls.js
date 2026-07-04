@@ -10,11 +10,8 @@ router.post("/", auth, vinylsController.createVinyl);
 // READ all user vinyls
 router.get("/", auth, vinylsController.getUserVinyls);
 
-// SEARCH vinylsgit status
+// SEARCH vinyls
 router.get("/search", auth, vinylsController.searchVinyls);
-
-// proxy vers l'API iTunes (évite les soucis de CORS côté navigateur)
-router.get("/cover-art", auth, vinylsController.getCoverArt);
 
 // READ one vinyl
 router.get("/:id", auth, vinylsController.getOneVinyl);
