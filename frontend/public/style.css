@@ -265,8 +265,7 @@ button:hover {
 
 .actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+  justify-content: space-between;
   margin-top: 8px;
 }
 
@@ -621,9 +620,8 @@ button:hover {
   }
 
   .actions {
-    width: 100%;
-    justify-content: flex-end;
-    gap: 14px; /* réduit un peu vu l'espace disponible en 2 colonnes */
+    width: 100%;    
+    justify-content: space-between;
   }
 
   .actions i {
