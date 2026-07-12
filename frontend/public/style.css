@@ -546,7 +546,7 @@ button:hover {
   display: none;
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
+  left: 0;
   background: #1a1a1a;
   border: 1px solid #333;
   border-radius: 10px;
@@ -576,9 +576,30 @@ button:hover {
   opacity: 1;
 }
 
+.desktop-menu button.menu-danger {
+  border-top: 1px solid #333;
+  border-radius: 0;
+  margin-top: 4px;
+  padding-top: 10px;
+}
+
+.desktop-menu button.menu-danger:hover {
+  background: #c0392b;
+}
+
 @media (min-width: 769px) {
   .desktop-menu-wrapper {
     display: block;
+  }
+
+  .header-menu-wrapper {
+    position: absolute;
+    top: 18px;
+    left: 15px;
+  }
+
+  .logout-btn {
+    display: none !important;
   }
 
   #vinylFormSection,

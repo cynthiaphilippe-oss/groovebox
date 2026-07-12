@@ -39,6 +39,24 @@
 
     </div>
 
+    <div class="desktop-menu-wrapper header-menu-wrapper" id="desktopMenuWrapper" style="display:none;">
+      <button id="desktopMenuBtn" class="desktop-menu-btn" onclick="toggleDesktopMenu(event)" aria-label="Menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <div id="desktopMenu" class="desktop-menu">
+        <button onclick="openSheetFromMenu('add')">
+          <i class="fa-solid fa-plus"></i> Ajouter un vinyle
+        </button>
+        <button onclick="openSheetFromMenu('search')">
+          <i class="fa-solid fa-magnifying-glass"></i> Recherche
+        </button>
+        <button onclick="logout()" class="menu-danger">
+          <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+        </button>
+      </div>
+    </div>
+
     <button id="logoutBtn" onclick="logout()" class="btn-secondary logout-btn" style="display:none;">
       <i class="fa-solid fa-right-from-bracket"></i><span class="logout-text"> Déconnexion</span>
     </button>
@@ -69,24 +87,7 @@
 
       <div class="collection-header">
         <h2>Ma collection</h2>
-        <div class="header-right">
-          <span id="count">0 vinyles</span>
-
-          <div class="desktop-menu-wrapper">
-            <button id="desktopMenuBtn" class="desktop-menu-btn" onclick="toggleDesktopMenu(event)" aria-label="Menu">
-              <i class="fa-solid fa-bars"></i>
-            </button>
-
-            <div id="desktopMenu" class="desktop-menu">
-              <button onclick="openSheetFromMenu('add')">
-                <i class="fa-solid fa-plus"></i> Ajouter un vinyle
-              </button>
-              <button onclick="openSheetFromMenu('search')">
-                <i class="fa-solid fa-magnifying-glass"></i> Recherche
-              </button>
-            </div>
-          </div>
-        </div>
+        <span id="count">0 vinyles</span>
       </div>
       <div class="sort-bar">
         <button id="sortBtn-title" onclick="sortVinyls('title')">A → Z</button>

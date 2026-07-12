@@ -135,12 +135,14 @@ function showAuth() {
   document.getElementById("authSection").style.display = "flex";
   document.getElementById("appContent").style.display = "none";
   document.getElementById("logoutBtn").style.display = "none";
+  document.getElementById("desktopMenuWrapper").style.display = "none";
 }
 
 function showApp() {
   document.getElementById("authSection").style.display = "none";
   document.getElementById("appContent").style.display = "block";
   document.getElementById("logoutBtn").style.display = "block";
+  document.getElementById("desktopMenuWrapper").style.display = "";
 }
 
 function toggleAuthMode() {
