@@ -2,6 +2,15 @@ const API_BASE = "https://groovebox.onrender.com";
 const VINYLS_API = `${API_BASE}/vinyls`;
 const USERS_API = `${API_BASE}/users`;
 
+// enregistrement du service worker (rend l'appli installable)
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js").catch(() => {
+      // pas grave si ça échoue, l'appli fonctionne quand même normalement
+    });
+  });
+}
+
 /* =========================
    STATE GLOBAL
 ========================= */
@@ -23,6 +32,7 @@ let sortState = {
 if (token) {
   showApp();
   loadVinyls();
+  updateNavActive("collection");
 } else {
   showAuth();
 }
@@ -59,6 +69,28 @@ function updateNavActive(name) {
   const btn = document.getElementById(`navBtn-${name}`);
   if (btn) btn.classList.add("active-nav");
 }
+
+/* =========================
+   MENU BURGER (desktop)
+========================= */
+function toggleDesktopMenu(event) {
+  event.stopPropagation();
+  document.getElementById("desktopMenu").classList.toggle("show");
+}
+
+function openSheetFromMenu(name) {
+  document.getElementById("desktopMenu").classList.remove("show");
+  openSheet(name);
+}
+
+// ferme le menu si on clique n'importe où ailleurs
+document.addEventListener("click", (e) => {
+  const menu = document.getElementById("desktopMenu");
+  const btn = document.getElementById("desktopMenuBtn");
+  if (menu && menu.classList.contains("show") && !menu.contains(e.target) && e.target !== btn) {
+    menu.classList.remove("show");
+  }
+});
 
 /* =========================
    UI HELPERS
@@ -172,6 +204,7 @@ async function loginUser() {
 
     showApp();
     loadVinyls();
+    updateNavActive("collection");
     showToast(`Bienvenue ${data.user.username} !`);
 
   } catch (error) {
@@ -689,7 +722,7 @@ async function confirmDelete() {
 /* =========================
    SORT
 ========================= */
-const sortLabels = { title: "A → Z", artist: "Artiste", year: "Année" };
+const sortLabels = { title: "A → Z", artist: "Artiste", year: "Année", genre: "Genre" };
 
 function updateSortButtonsUI() {
   Object.keys(sortLabels).forEach(key => {

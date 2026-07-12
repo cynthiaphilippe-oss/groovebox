@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -10,6 +9,11 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="mobile.css">
   <link rel="icon" type="image/png" href="assets/favicon.jpg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ed601a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GrooveBox">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -65,13 +69,31 @@
 
       <div class="collection-header">
         <h2>Ma collection</h2>
-        <span id="count">0 vinyles</span>
+        <div class="header-right">
+          <span id="count">0 vinyles</span>
+
+          <div class="desktop-menu-wrapper">
+            <button id="desktopMenuBtn" class="desktop-menu-btn" onclick="toggleDesktopMenu(event)" aria-label="Menu">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <div id="desktopMenu" class="desktop-menu">
+              <button onclick="openSheetFromMenu('add')">
+                <i class="fa-solid fa-plus"></i> Ajouter un vinyle
+              </button>
+              <button onclick="openSheetFromMenu('search')">
+                <i class="fa-solid fa-magnifying-glass"></i> Recherche
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="sort-bar">
         <button id="sortBtn-title" onclick="sortVinyls('title')">A → Z</button>
         <button id="sortBtn-artist" onclick="sortVinyls('artist')">Artiste</button>
         <button id="sortBtn-year" onclick="sortVinyls('year')">Année</button>
-        <button onclick="resetOrder()">Reset ordre</button>
+        <button id="sortBtn-genre" onclick="sortVinyls('genre')">Genre</button>
+        <!--button onclick="resetOrder()">Reset ordre</!--button-->
       </div>
 
       <div id="list"></div>
@@ -96,15 +118,15 @@
           <option value="">Genre...</option>
           <option value="Rock">Rock</option>
           <option value="Pop">Pop</option>
-          <option value="Hip-Hop">Hip-Hop</option>
-          <option value="Rap">Rap</option>
           <option value="Jazz">Jazz</option>
           <option value="Blues">Blues</option>
           <option value="Funk">Funk</option>
           <option value="Soul">Soul</option>
           <option value="Electro">Electro</option>
+          <option value="Hip-Hop">Hip-Hop</option>
+          <option value="Rap">Rap</option>
           <option value="Reggae">Reggae</option>
-          <option value="Alternative">Alternative</option>
+          <option value="Classique">Classique</option>
           <option value="Metal">Metal</option>
           <option value="Folk">Folk</option>
           <option value="Grunge">Grunge</option>
@@ -167,7 +189,7 @@
 
   <!-- NAV MOBILE EN BAS -->
   <nav id="bottomNav">
-    <button id="navBtn-collection" onclick="closeSheets()">
+    <button id="navBtn-collection" onclick="closeSheets(); document.getElementById('list').scrollIntoView({behavior:'smooth'});">
       <i class="fa-solid fa-record-vinyl"></i>
       <span>Collection</span>
     </button>
