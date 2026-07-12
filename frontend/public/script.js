@@ -351,17 +351,41 @@ function getDisplayedVinyls() {
 /* =========================
    COULEUR DE BADGE PAR GENRE
 ========================= */
-function genreColor(genre) {
-  if (!genre) return "#ed601a";
+const GENRE_COLORS = {
+  "Rock": { bg: "#e74c3c", text: "#fff" },
+  "Pop": { bg: "#e75480", text: "#fff" },
+  "Jazz": { bg: "#9b59b6", text: "#fff" },
+  "Blues": { bg: "#3498db", text: "#fff" },
+  "Funk": { bg: "#f1c40f", text: "#111" },
+  "Soul": { bg: "#e67e22", text: "#111" },
+  "Electro": { bg: "#8e44ad", text: "#fff" },
+  "Hip-Hop": { bg: "#2b2b2b", text: "#fff", border: "#f8eedc" },
+  "Rap": { bg: "#161616", text: "#fff", border: "#ed601a" },
+  "Reggae": { bg: "#27ae60", text: "#fff" },
+  "Classique": { bg: "#f0f0f0", text: "#111" },
+  "Metal": { bg: "#7f8c8d", text: "#111" },
+  "Folk": { bg: "#a9784c", text: "#111" },
+  "Grunge": { bg: "#556b2f", text: "#fff" },
+  "Progressive Rock": { bg: "#1f3a93", text: "#fff" },
+  "Punk": { bg: "#ff5722", text: "#fff" },
+  "Disco": { bg: "#d4af37", text: "#111" },
+  "Country": { bg: "#6f4518", text: "#fff" },
+  "World": { bg: "#16a085", text: "#fff" },
+  "OST": { bg: "#7d1128", text: "#fff" },
+};
 
-  // transforme le nom du genre en un nombre, toujours le même pour un même texte
+function genreColor(genre) {
+  if (!genre) return { bg: "#ed601a", text: "#fff" };
+
+  if (GENRE_COLORS[genre]) return GENRE_COLORS[genre];
+
+  // genre personnalisé (via "Autre") : couleur générée mais cohérente à chaque fois
   let hash = 0;
   for (let i = 0; i < genre.length; i++) {
     hash = genre.toLowerCase().charCodeAt(i) + ((hash << 5) - hash);
   }
-
   const hue = Math.abs(hash) % 360;
-  return `hsl(${hue}, 62%, 42%)`;
+  return { bg: `hsl(${hue}, 62%, 42%)`, text: "#fff" };
 }
 
 /* =========================
@@ -398,7 +422,11 @@ function render(vinyls) {
           <span>${v.year || "-"}</span>
         </div>
 
-        ${v.genre ? `<span class="badge" style="background:${genreColor(v.genre)}">${v.genre}</span>` : ""}
+        ${v.genre ? (() => {
+          const c = genreColor(v.genre);
+          const borderStyle = c.border ? `border:1px solid ${c.border};` : "";
+          return `<span class="badge" style="background:${c.bg};color:${c.text};${borderStyle}">${v.genre}</span>`;
+        })() : ""}
 
         <div class="actions">
           <i class="fa-solid fa-pen" onclick="editVinyl('${v._id}')" aria-label="Modifier" role="button" tabindex="0"></i>
