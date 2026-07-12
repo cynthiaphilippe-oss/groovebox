@@ -349,6 +349,22 @@ function getDisplayedVinyls() {
 }
 
 /* =========================
+   COULEUR DE BADGE PAR GENRE
+========================= */
+function genreColor(genre) {
+  if (!genre) return "#ed601a";
+
+  // transforme le nom du genre en un nombre, toujours le même pour un même texte
+  let hash = 0;
+  for (let i = 0; i < genre.length; i++) {
+    hash = genre.toLowerCase().charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 62%, 42%)`;
+}
+
+/* =========================
    RENDER
 ========================= */
 function render(vinyls) {
@@ -382,7 +398,7 @@ function render(vinyls) {
           <span>${v.year || "-"}</span>
         </div>
 
-        ${v.genre ? `<span class="badge">${v.genre}</span>` : ""}
+        ${v.genre ? `<span class="badge" style="background:${genreColor(v.genre)}">${v.genre}</span>` : ""}
 
         <div class="actions">
           <i class="fa-solid fa-pen" onclick="editVinyl('${v._id}')" aria-label="Modifier" role="button" tabindex="0"></i>
