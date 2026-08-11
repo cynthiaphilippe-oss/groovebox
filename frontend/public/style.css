@@ -17,16 +17,6 @@ body {
   padding: 20px;
 }
 
-.logout-btn {
-  position: absolute;
-  top: 18px;
-  right: 15px;
-  width: auto;
-  padding: 8px 14px;
-  font-size: 13px;
-  margin: 0;
-}
-
 .header-content {
   display: flex;
   align-items: center;
@@ -598,17 +588,15 @@ button:hover {
     left: 15px;
   }
 
-  .logout-btn {
-    display: none !important;
-  }
-
   #vinylFormSection,
-  #searchSection {
+  #searchSection,
+  #profileSection {
     display: none;
   }
 
   #vinylFormSection.sheet-open,
-  #searchSection.sheet-open {
+  #searchSection.sheet-open,
+  #profileSection.sheet-open {
     display: block;
     position: fixed;
     top: 50%;

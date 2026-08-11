@@ -56,7 +56,8 @@
   }
 
   #vinylFormSection,
-  #searchSection {
+  #searchSection,
+  #profileSection {
     position: fixed;
     left: 0;
     right: 0;
@@ -75,28 +76,14 @@
   }
 
   #vinylFormSection.sheet-open,
-  #searchSection.sheet-open {
+  #searchSection.sheet-open,
+  #profileSection.sheet-open {
     transform: translateY(0);
   }
 }
 
 /********************* RESPONSIVE GENERAL **********************/
 @media (max-width: 768px) {
-
-  /* le bouton déconnexion reste en haut à droite, mais en icône seule pour gagner de la place */
-  .logout-btn {
-    padding: 10px;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-  }
-
-  .logout-text {
-    display: none;
-  }
 
   .logo {
     width: 60px;
@@ -143,7 +130,7 @@
   }
 
   .cover {
-    height: 100%;
+    height: 100px;
     font-size: 34px;
   }
 

@@ -43,14 +43,24 @@ if (yearInput) {
 }
 
 /* =========================
-   BOTTOM SHEETS (nav mobile)
+   BOTTOM SHEETS (nav mobile + popups desktop)
 ========================= */
+const SHEET_IDS = {
+  add: "vinylFormSection",
+  search: "searchSection",
+  profile: "profileSection"
+};
+
 function openSheet(name) {
   closeSheets();
 
-  const el = name === "add"
-    ? document.getElementById("vinylFormSection")
-    : document.getElementById("searchSection");
+  const el = document.getElementById(SHEET_IDS[name]);
+  if (!el) return;
+
+  if (name === "profile") {
+    document.getElementById("profileUsername").value =
+      localStorage.getItem("groovebox_username") || "";
+  }
 
   el.classList.add("sheet-open");
   document.getElementById("sheetBackdrop").classList.add("show");
@@ -58,8 +68,10 @@ function openSheet(name) {
 }
 
 function closeSheets() {
-  document.getElementById("vinylFormSection").classList.remove("sheet-open");
-  document.getElementById("searchSection").classList.remove("sheet-open");
+  Object.values(SHEET_IDS).forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove("sheet-open");
+  });
   document.getElementById("sheetBackdrop").classList.remove("show");
   updateNavActive("collection");
 }
@@ -134,14 +146,12 @@ function resetUI() {
 function showAuth() {
   document.getElementById("authSection").style.display = "flex";
   document.getElementById("appContent").style.display = "none";
-  document.getElementById("logoutBtn").style.display = "none";
   document.getElementById("desktopMenuWrapper").style.display = "none";
 }
 
 function showApp() {
   document.getElementById("authSection").style.display = "none";
   document.getElementById("appContent").style.display = "block";
-  document.getElementById("logoutBtn").style.display = "block";
   document.getElementById("desktopMenuWrapper").style.display = "";
 }
 
@@ -254,6 +264,43 @@ function logout() {
   localStorage.removeItem("groovebox_username");
   showAuth();
   showToast("Déconnecté");
+}
+
+/* =========================
+   PROFIL
+========================= */
+async function saveProfile() {
+  const username = document.getElementById("profileUsername").value.trim();
+
+  if (!username) {
+    showToast("Le nom ne peut pas être vide");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${USERS_API}/profile`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({ username })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.message || "Impossible de mettre à jour le profil");
+      return;
+    }
+
+    localStorage.setItem("groovebox_username", username);
+    closeSheets();
+    showToast("Nom mis à jour !");
+
+  } catch (error) {
+    showToast("Impossible de contacter le serveur");
+  }
 }
 
 /* =========================

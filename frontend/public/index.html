@@ -8,7 +8,8 @@
 
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="mobile.css">
-  <link rel="icon" type="image/png" href="assets/favicon.jpg">
+  <link rel="icon" type="image/png" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ed601a">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -51,15 +52,14 @@
         <button onclick="openSheetFromMenu('search')">
           <i class="fa-solid fa-magnifying-glass"></i> Recherche
         </button>
+        <button onclick="openSheetFromMenu('profile')">
+          <i class="fa-solid fa-user"></i> Mon profil
+        </button>
         <button onclick="logout()" class="menu-danger">
           <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
         </button>
       </div>
     </div>
-
-    <button id="logoutBtn" onclick="logout()" class="btn-secondary logout-btn" style="display:none;">
-      <i class="fa-solid fa-right-from-bracket"></i><span class="logout-text"> Déconnexion</span>
-    </button>
   </header>
 
   <!-- CONNEXION / INSCRIPTION -->
@@ -188,6 +188,26 @@
       </div>
     </section>
 
+    <!-- PROFIL -->
+    <section id="profileSection" class="form">
+      <div class="sheet-header">
+        <h2>Mon profil</h2>
+        <button class="sheet-close" onclick="closeSheets()" aria-label="Fermer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <input id="profileUsername" placeholder="Nom d'utilisateur">
+
+      <button onclick="saveProfile()">
+        <i class="fa-solid fa-check"></i> Enregistrer
+      </button>
+
+      <button onclick="logout()" class="btn-danger">
+        <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+      </button>
+    </section>
+
   </div>
 
   <!-- FOND SOMBRE DERRIÈRE LES PANNEAUX MOBILES -->
@@ -206,6 +226,10 @@
     <button id="navBtn-search" onclick="openSheet('search')">
       <i class="fa-solid fa-magnifying-glass"></i>
       <span>Recherche</span>
+    </button>
+    <button id="navBtn-profile" onclick="openSheet('profile')">
+      <i class="fa-solid fa-user"></i>
+      <span>Profil</span>
     </button>
   </nav>
 
