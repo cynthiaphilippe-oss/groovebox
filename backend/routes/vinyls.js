@@ -13,6 +13,9 @@ router.get("/", auth, vinylsController.getUserVinyls);
 // SEARCH vinyls
 router.get("/search", auth, vinylsController.searchVinyls);
 
+// RECHERCHE DE POCHETTE (doit être avant /:id, sinon Express le confond avec un id)
+router.get("/cover-search", auth, vinylsController.searchCoverArt);
+
 // READ one vinyl
 router.get("/:id", auth, vinylsController.getOneVinyl);
 
