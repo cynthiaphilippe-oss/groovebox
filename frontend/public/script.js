@@ -492,33 +492,32 @@ function refresh() {
 }
 
 /* =========================
-   POCHETTE (vignettes cliquables)
+   RECHERCHE D'ALBUM UNIFIÉE (auto-remplit titre/artiste/pochette)
 ========================= */
 let selectedCover = null;
-let coverSearchTimer = null;
+let albumSearchTimer = null;
+let albumSearchResults = [];
 
-function scheduleCoverSearch() {
-  clearTimeout(coverSearchTimer);
-  coverSearchTimer = setTimeout(triggerCoverSearch, 700);
+function scheduleAlbumSearch() {
+  clearTimeout(albumSearchTimer);
+  albumSearchTimer = setTimeout(triggerAlbumSearch, 500);
 }
 
-async function triggerCoverSearch() {
-  const title = document.getElementById("title").value.trim();
-  const artist = document.getElementById("artist").value.trim();
-  const picker = document.getElementById("coverPicker");
-  const container = document.getElementById("coverResults");
+async function triggerAlbumSearch() {
+  const q = document.getElementById("albumQuery").value.trim();
+  const container = document.getElementById("albumResults");
 
-  if (!title || !artist) {
-    picker.style.display = "none";
+  if (!q) {
+    container.style.display = "none";
+    container.innerHTML = "";
     return;
   }
 
-  picker.style.display = "block";
+  container.style.display = "block";
   container.innerHTML = `<div class="cover-loading">Recherche en cours...</div>`;
 
   try {
-    const query = `title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
-    const res = await fetch(`${VINYLS_API}/cover-search?${query}`, {
+    const res = await fetch(`${VINYLS_API}/cover-search?q=${encodeURIComponent(q)}`, {
       headers: { Authorization: "Bearer " + token }
     });
 
@@ -528,26 +527,47 @@ async function triggerCoverSearch() {
     }
 
     const data = await res.json();
+    albumSearchResults = data.results || [];
 
-    if (!data.results || data.results.length === 0) {
-      container.innerHTML = `<p class="cover-empty">Aucune pochette trouvée — tu peux coller une URL en dessous</p>`;
+    if (albumSearchResults.length === 0) {
+      container.innerHTML = `<p class="cover-empty">Aucun résultat — tu peux remplir à la main en dessous</p>`;
       return;
     }
 
-    container.innerHTML = data.results.map(r => `
-      <img
-        src="${r.cover}"
-        alt="${r.album}"
-        title="${r.album} — ${r.artist}"
-        class="cover-option"
-        onclick="selectCover('${r.cover}', this)"
-        onerror="this.remove()"
-      >
+    container.innerHTML = albumSearchResults.map((r, i) => `
+      <div class="album-result" onclick="selectAlbumResult(${i})">
+        <img src="${r.cover}" alt="${r.album}" onerror="this.style.visibility='hidden'">
+        <div class="album-result-text">
+          <strong>${r.album}</strong>
+          <span>${r.artist}</span>
+        </div>
+      </div>
     `).join("");
 
   } catch (err) {
     container.innerHTML = `<p class="cover-empty">Recherche indisponible pour le moment</p>`;
   }
+}
+
+function selectAlbumResult(index) {
+  const r = albumSearchResults[index];
+  if (!r) return;
+
+  document.getElementById("title").value = r.album;
+  document.getElementById("artist").value = r.artist;
+  selectedCover = r.cover;
+
+  // année auto-remplie seulement si elle est dans les bornes acceptées
+  const currentYear = new Date().getFullYear();
+  if (r.year && r.year >= 1948 && r.year <= currentYear) {
+    document.getElementById("year").value = r.year;
+  }
+
+  document.getElementById("albumQuery").value = "";
+  document.getElementById("albumResults").style.display = "none";
+  document.getElementById("albumResults").innerHTML = "";
+
+  showToast(`"${r.album}" sélectionné !`);
 }
 
 function selectCover(url, imgEl) {
@@ -560,6 +580,14 @@ function resetCoverPicker() {
   selectedCover = null;
   document.getElementById("coverPicker").style.display = "none";
   document.getElementById("coverResults").innerHTML = "";
+
+  const albumQuery = document.getElementById("albumQuery");
+  const albumResults = document.getElementById("albumResults");
+  if (albumQuery) albumQuery.value = "";
+  if (albumResults) {
+    albumResults.style.display = "none";
+    albumResults.innerHTML = "";
+  }
 }
 
 /* =========================

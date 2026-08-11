@@ -216,6 +216,65 @@ button:hover {
   padding: 6px 0;
 }
 
+/********************* RECHERCHE D'ALBUM UNIFIÉE **********************/
+.album-results {
+  max-height: 260px;
+  overflow-y: auto;
+  background: #111;
+  border-radius: 10px;
+  margin: -6px 0 8px 0;
+  border: 1px solid #333;
+}
+
+.album-result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #262626;
+}
+
+.album-result:last-child {
+  border-bottom: none;
+}
+
+.album-result:hover,
+.album-result:active {
+  background: #1f1f1f;
+}
+
+.album-result img {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #2c2c2c;
+}
+
+.album-result-text {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.album-result-text strong {
+  font-size: 14px;
+  color: #f8eedc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.album-result-text span {
+  font-size: 12px;
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /********************* CARDS **********************/
 .card {
   display: flex;

@@ -110,9 +110,12 @@
         </button>
       </div>
 
+      <input id="albumQuery" placeholder="🔍 Cherche un album (ex: Thriller Michael Jackson)" oninput="scheduleAlbumSearch()" autocomplete="off">
+      <div id="albumResults" class="album-results" style="display:none;"></div>
+
       <div class="form-grid">
-        <input id="title" placeholder="Titre" oninput="scheduleCoverSearch()">
-        <input id="artist" placeholder="Artiste" oninput="scheduleCoverSearch()">
+        <input id="title" placeholder="Titre">
+        <input id="artist" placeholder="Artiste">
         <input id="year" placeholder="Année" type="number" inputmode="numeric" min="1948" max="2026">
 
         <select id="genre" onchange="toggleGenreOther()">
@@ -151,7 +154,7 @@
       <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleCameraCapture(event)">
 
       <div id="coverPicker" class="cover-picker" style="display:none;">
-        <p class="cover-picker-label">Choisis une pochette :</p>
+        <p class="cover-picker-label">Ta photo :</p>
         <div id="coverResults" class="cover-results"></div>
       </div>
 
