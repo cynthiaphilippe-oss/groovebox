@@ -87,3 +87,38 @@ exports.login = async (req, res) => {
     });
   }
 };
+
+// mise à jour du profil (nom d'utilisateur)
+exports.updateProfile = async (req, res) => {
+  try {
+    const { username } = req.body;
+ 
+    if (!username || !username.trim()) {
+      return res.status(400).json({ message: "Le nom d'utilisateur est requis" });
+    }
+ 
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.userId,
+      { username: username.trim() },
+      { new: true }
+    );
+ 
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Utilisateur introuvable" });
+    }
+ 
+    res.json({
+      message: "Profil mis à jour",
+      user: {
+        _id: updatedUser._id,
+        username: updatedUser.username,
+        email: updatedUser.email,
+      },
+    });
+ 
+  } catch (error) {
+    console.error("ERREUR updateProfile:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+ 

@@ -19,4 +19,6 @@ router.get("/profile", auth, (req, res) => {
   });
 });
 
+router.put("/profile", auth, usersController.updateProfile);
+
 module.exports = router;
