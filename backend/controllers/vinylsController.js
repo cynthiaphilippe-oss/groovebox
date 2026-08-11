@@ -138,3 +138,35 @@ exports.deleteVinyl = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.searchCoverArt = async (req, res) => {
+  try {
+    const { title, artist, q } = req.query;
+ 
+    // recherche unifiée (q) en priorité, sinon on retombe sur l'ancien mode title+artist
+    const searchTerm = q ? q.trim() : `${artist || ""} ${title || ""}`.trim();
+ 
+    if (!searchTerm) {
+      return res.status(400).json({ message: "Recherche vide" });
+    }
+ 
+    const query = encodeURIComponent(searchTerm);
+    const response = await fetch(
+      `https://itunes.apple.com/search?term=${query}&media=music&entity=album&limit=6`
+    );
+    const data = await response.json();
+ 
+    const results = (data.results || []).map((r) => ({
+      cover: r.artworkUrl100.replace(/\d+x\d+bb/, "300x300bb"),
+      album: r.collectionName,
+      artist: r.artistName,
+      year: r.releaseDate ? new Date(r.releaseDate).getFullYear() : null,
+    }));
+ 
+    res.json({ results });
+ 
+  } catch (error) {
+    console.error("ERREUR searchCoverArt:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
